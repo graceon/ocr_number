@@ -36,7 +36,7 @@ def get_position_with_circle(img, bound_radius=(50,100), kernel=9, iterations=2,
         circles = np.uint16(np.around(circles))
         for i in circles[0, :]:
             # draw the outer circle
-            print i
+            print(i) 
             if i[1] < center_bound[1] and i[1] > center_bound[0]:
                 all_circle.append(i)
 
@@ -286,18 +286,18 @@ class TemplateMatcher():
         for name in _posive_templates_paths:
             img = cv2.imread(name, 0)
             if img is None:
-                print "no image in", name
+                print("no image in", name)
             self.__posive_templates.append(img)
 
         self.__negive_templates = []
         for name in _negive_templates_paths:
             img = cv2.imread(name, 0)
             if img is None:
-                raise "no image in", name
+                raise("no image in", name)
             self.__negive_templates.append(img)
 
-        print len(self.__posive_templates), " posive templates recored"
-        print len(self.__negive_templates), " negive templates recored"
+        print( len(self.__posive_templates), " posive templates recored")
+        print( len(self.__negive_templates), " negive templates recored")
 
     def match(self, _frame):
         cropped_frame = _frame[self.__crop_h[0] * _frame.shape[0]:self.__crop_h[1] * _frame.shape[0],
@@ -471,7 +471,7 @@ class Detecter(object):
                 # kp_pairs = [kpp for kpp , flag in zip(kp_pairs , status) if flag]
             else:
                 H , status = None , 0
-                print '%d matches found, not enough for homography estimation' % len(p1)
+                print('%d matches found, not enough for homography estimation' % len(p1))
             # end = time.time()
             # print "SIFT time:%f"%(end-start)
             # explore_match('matches' , template_image , image , kp_pairs , H=H)
@@ -559,7 +559,7 @@ class Detecter(object):
         if self.classify_type == "INVERSE":
             value = result_value[min_arg]
             if debug:
-                print "value:" + str(value)
+                print ("value:" + str(value))
             if value < judge_bound:
                 return "反面"
             else:
@@ -567,7 +567,7 @@ class Detecter(object):
         elif self.classify_type == "P7003":
             value = result_value[min_arg]
             if debug:
-                print "value:" + str(value)
+                print ("value:" + str(value))
             if value < judge_bound:
                 return "P7003"
             else:
@@ -577,12 +577,12 @@ class Detecter(object):
             return name
 
     def end(self):
-        print "end"
+        print ("end")
 
 import multiprocessing
 class Consumer(multiprocessing.Process, Detecter):
     def __init__(self, task_q, result_q, detecter_type):
-        print "initialize"
+        print( "initialize")
         multiprocessing.Process.__init__(self)
         self.task_q = task_q
         self.result_q = result_q
@@ -593,7 +593,7 @@ class Consumer(multiprocessing.Process, Detecter):
         while True:
             next_task = self.task_q.get(block=True)
             if next_task[0] == 2:
-                print "kill"
+                print( "kill")
                 self.task_q.task_done()
             elif next_task[0] == 1:
                 template_image = next_task[1]

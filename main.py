@@ -60,8 +60,13 @@ if __name__ == '__main__':
 
     all_train_image = get_all_train_image(train_path)
 
-    test_image = test_image_source = cv2.imread(test_path + '/smaller.bmp', 0)
-    test_image = test_image_source = cv2.resize(test_image, (274, 73))
+    test_image = test_image_source = cv2.imread(test_path + '/2.png', 0)
+    # test_image = test_image_source = cv2.resize(test_image, (274, 73))
+
+
+
+
+
     # test_image = cv2.GaussianBlur(test_image,(3,3),20)
     # test_image = cv2.blur(test_image, (4, 4))
     cv2.imshow("image", test_image)
@@ -75,13 +80,15 @@ if __name__ == '__main__':
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     test_image = cv2.dilate(test_image, kernel)
 
-    derp, contours, hierarchy = cv2.findContours(test_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # derp, contours, hierarchy = cv2.findContours(test_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours,derp  = cv2.findContours(test_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     # cv2.drawContours(white_test_image, contours, -1, (255, 255, 255), 3)
-    print len(contours)
+    print(len(contours))
     all_rect_filter_width = []
+    # print(derp)
     for i in range(len(contours)):
+        
         rect = cv2.boundingRect(contours[i])
-        print rect
 
         # box = np.int0(cv2.boxPoints(rect))
         area = cv2.contourArea(contours[i])
@@ -90,7 +97,8 @@ if __name__ == '__main__':
             if (rect[2] > test_image_source.shape[1]/5):
                 number = rect[2]/(test_image_source.shape[1]/8) + 1
                 number = 2
-                for j in xrange(number):
+                # for j in xrange(number):
+                for j in range(number):
                     rect_new = (rect[0] + rect[2]/ number* j, rect[1], rect[2]/number, rect[3])
 
                     all_rect_filter_width.append(rect_new)
@@ -100,19 +108,30 @@ if __name__ == '__main__':
     all_rect_filter_height = []
     for rect in all_rect_filter_width:
         if rect[3] > test_image_source.shape[0]/2:
-            for k in xrange(2):
+            for k in range(2):
                 rect_new = (rect[0], rect[1] + rect[3] / 2 * k, rect[2], 36)
                 all_rect_filter_height.append(rect_new)
         else:
             rect_new = (rect[0], rect[1], rect[2], 36)
+            rect_new = (rect[0], rect[1], rect[2], rect[3])
             all_rect_filter_height.append(rect_new)
     all_cell = []
+    # print(all_rect_filter_height)
+    for i in range(len(all_rect_filter_height)):
+        all_rect_filter_height[i]=(
+            int(all_rect_filter_height[i][0]),
+            int(all_rect_filter_height[i][1]),
+            int(all_rect_filter_height[i][2]),
+            int(all_rect_filter_height[i][3])
+        )
+
+    # all_rect_filter_height=all_rect_filter_height.
     for rect in all_rect_filter_height:
         cell = test_image_source[rect[1]:rect[1]+rect[3], rect[0]:rect[0]+rect[2]]
         cell = cv2.resize(cell, (25, 25))
         result = get_classify_type(cell, all_train_image)
         cv2.rectangle(test_image_source, (rect[0], rect[1]), (rect[2] + rect[0], rect[3] + rect[1]),
-                      (255, 255, 255), 1)
+                      (0, 0, 255), 1)
         cv2.putText(test_image_source, str(result), (rect[0], rect[1]+20), cv2.FONT_HERSHEY_SIMPLEX, 0.4, 255, 1)
         all_cell.append(cell)
     cv2.imshow("image", test_image_source)
